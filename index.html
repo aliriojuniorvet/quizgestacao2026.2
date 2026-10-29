@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Gestação, Parto e Lactação</title>
+<style>
+  :root{
+    --navy:#1B2A56; --navy-2:#24376e; --gold:#C9A227; --ice:#E7ECF7;
+    --ink:#1a2238; --muted:#5b6785; --ok:#1f8a4c; --ok-bg:#e3f4ea;
+    --bad:#c0392b; --bad-bg:#fbe7e4; --white:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,"Segoe UI",Arial,sans-serif;background:var(--ice);color:var(--ink);min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+  .wrap{width:100%;max-width:640px}
+  .card{background:var(--white);border-radius:16px;box-shadow:0 8px 28px rgba(27,42,86,.12);overflow:hidden}
+  .head{background:var(--navy);color:#fff;padding:26px 24px 22px;border-bottom:4px solid var(--gold)}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);background:var(--gold);padding:4px 10px;border-radius:999px;font-weight:700}
+  h1{font-family:Cambria,Georgia,serif;font-size:24px;line-height:1.25;margin:12px 0 6px}
+  .head p{opacity:.85;font-size:14px}
+  .body{padding:24px}
+  label{display:block;font-weight:700;margin-bottom:8px}
+  input[type=text]{width:100%;padding:13px 14px;border:2px solid #cfd7ea;border-radius:10px;font-size:16px;font-family:inherit}
+  input[type=text]:focus{outline:none;border-color:var(--navy)}
+  .btn{display:block;width:100%;margin-top:16px;padding:14px;border:0;border-radius:10px;background:var(--navy);color:#fff;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--navy-2)}
+  .btn:disabled{background:#a9b3cc;cursor:not-allowed}
+  .rules{margin-top:20px;background:var(--ice);border-left:4px solid var(--gold);border-radius:8px;padding:14px 16px;font-size:14px;color:var(--muted);line-height:1.55}
+  .rules b{color:var(--ink)}
+  .err{color:var(--bad);font-size:14px;margin-top:8px;min-height:18px}
+  .hidden{display:none!important}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;color:var(--muted);font-weight:700}
+  .timer{font-size:20px;color:var(--navy);font-variant-numeric:tabular-nums}
+  .timer.low{color:var(--bad)}
+  .bar{height:8px;background:#e1e6f2;border-radius:99px;overflow:hidden;margin-bottom:6px}
+  .bar>div{height:100%;background:var(--gold);transition:width 1s linear}
+  .prog{height:4px;background:#e1e6f2;border-radius:99px;overflow:hidden;margin-bottom:22px}
+  .prog>div{height:100%;background:var(--navy)}
+  .q{font-family:Cambria,Georgia,serif;font-size:20px;line-height:1.45;margin-bottom:22px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .opt{padding:18px 10px;border:2px solid #cfd7ea;border-radius:12px;background:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .opt:hover{border-color:var(--navy)}
+  .opt.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+  .hint{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+  .score{text-align:center;padding:6px 0 18px}
+  .nota{font-family:Cambria,Georgia,serif;font-size:52px;color:var(--navy);font-weight:700;line-height:1}
+  .nota small{font-size:22px;color:var(--muted)}
+  .stats{display:flex;gap:12px;margin:18px 0}
+  .stat{flex:1;border-radius:12px;padding:14px;text-align:center;font-weight:700}
+  .stat .n{font-size:28px;display:block}
+  .stat.ok{background:var(--ok-bg);color:var(--ok)}
+  .stat.bad{background:var(--bad-bg);color:var(--bad)}
+  .status{text-align:center;font-size:14px;color:var(--muted);margin-bottom:18px}
+  .rev h3{font-family:Cambria,Georgia,serif;color:var(--navy);margin:8px 0 12px}
+  .item{border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:5px solid;font-size:15px;line-height:1.45}
+  .item.ok{background:var(--ok-bg);border-color:var(--ok)}
+  .item.bad{background:var(--bad-bg);border-color:var(--bad)}
+  .item .meta{font-size:13px;margin-top:6px;color:var(--muted)}
+  .item .exp{font-size:13px;margin-top:4px;color:var(--ink)}
+  .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:14px}
+  @media (max-width:420px){h1{font-size:21px}.q{font-size:18px}.body{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+  <div class="head">
+    <span class="badge">Reprodução Animal</span>
+    <h1>Fecundação, Gestação, Parto e Lactação</h1>
+    <p>Quiz Verdadeiro ou Falso · Prof. Alírio · Valor: 4,0 pontos</p>
+  </div>
+
+  <!-- TELA INICIAL -->
+  <div class="body" id="tela-inicio">
+    <label for="nome">Nome completo</label>
+    <input type="text" id="nome" placeholder="Digite seu nome completo" autocomplete="name">
+    <div class="err" id="erro-nome"></div>
+    <button class="btn" id="btn-iniciar">Iniciar Quiz</button>
+    <div class="rules">
+      <b>25 questões</b> de Verdadeiro ou Falso · <b>40 segundos</b> por questão.<br>
+      Você pode trocar a resposta enquanto estiver na questão. Ao clicar em <b>Avançar</b>, não é possível voltar.<br>
+      Se o tempo acabar, a questão avança sozinha (sem resposta conta como erro).<br>
+      O resultado só aparece ao final. Cada acerto vale <b>0,16 ponto</b>.
+    </div>
+  </div>
+
+  <!-- TELA QUIZ -->
+  <div class="body hidden" id="tela-quiz">
+    <div class="top"><span id="contador">Questão 1 de 25</span><span class="timer" id="timer">40s</span></div>
+    <div class="bar"><div id="barra-tempo" style="width:100%"></div></div>
+    <div class="prog"><div id="barra-prog" style="width:0%"></div></div>
+    <div class="q" id="pergunta"></div>
+    <div class="opts">
+      <button class="opt" data-v="true">Verdadeiro</button>
+      <button class="opt" data-v="false">Falso</button>
+    </div>
+    <button class="btn" id="btn-avancar" disabled>Avançar</button>
+    <div class="hint">Atenção: depois de avançar, não há como voltar.</div>
+  </div>
+
+  <!-- TELA RESULTADO -->
+  <div class="body hidden" id="tela-final">
+    <div class="score">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:8px" id="final-nome"></div>
+      <div class="nota" id="final-nota">0,00 <small>/ 4,0</small></div>
+    </div>
+    <div class="stats">
+      <div class="stat ok"><span class="n" id="final-acertos">0</span>Acertos</div>
+      <div class="stat bad"><span class="n" id="final-erros">0</span>Erros</div>
+    </div>
+    <div class="status" id="status-envio">Enviando resultado…</div>
+    <div class="rev">
+      <h3>Correção</h3>
+      <div id="revisao"></div>
+    </div>
+  </div>
+</div>
+<div class="foot">Fontes: Hafez — Reprodução Animal (7ª ed.) · Cunningham — Tratado de Fisiologia Veterinária</div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9qDc4uMbk9yRoMFaSSy_Lh3s8K2ov9Nf_gUqFJEftlyi2Vvx9h6TCvfTqZulewuHN/exec';
+const ABA_SHEETS = 'Quiz Gestação';
+const TEMPO = 40;
+const VALOR_TOTAL = 4.0;
+
+const perguntas = [
+  { q:"A capacitação espermática ocorre no trato reprodutivo da fêmea e envolve a remoção de proteínas e colesterol da membrana plasmática do espermatozoide.", c:true,
+    e:"A capacitação desestabiliza a membrana e prepara o espermatozoide para a reação acrossômica." },
+  { q:"A reação cortical, que bloqueia a polispermia, consiste na liberação de grânulos corticais pelo espermatozoide.", c:false,
+    e:"Os grânulos corticais são liberados pelo oócito, modificando a zona pelúcida." },
+  { q:"A fecundação ocorre normalmente no istmo da tuba uterina, próximo à junção útero-tubária.", c:false,
+    e:"Ocorre na ampola, na junção ampola-istmo." },
+  { q:"A reação acrossômica é desencadeada após a ligação do espermatozoide à glicoproteína ZP3 da zona pelúcida.", c:true,
+    e:"A ZP3 atua como receptor primário e indutor da reação acrossômica." },
+  { q:"Singamia é a fusão dos pró-núcleos masculino e feminino, restabelecendo o número diploide de cromossomos no zigoto.", c:true,
+    e:"A união dos pró-núcleos forma o zigoto diploide." },
+  { q:"Durante a clivagem, as divisões mitóticas promovem aumento significativo do volume total do embrião.", c:false,
+    e:"Na clivagem os blastômeros ficam menores; o volume total praticamente não muda." },
+  { q:"A eclosão do blastocisto corresponde à sua saída da zona pelúcida.", c:true,
+    e:"O blastocisto rompe a zona pelúcida antes de se alongar ou se fixar." },
+  { q:"Em bovinos, o reconhecimento materno da gestação é mediado pelo interferon-tau secretado pelo trofoblasto.", c:true,
+    e:"O IFN-τ inibe a liberação pulsátil de PGF2α, mantendo o corpo lúteo." },
+  { q:"Na porca, o principal sinal de reconhecimento materno da gestação é a gonadotrofina coriônica.", c:false,
+    e:"Na porca o sinal é o estrógeno produzido pelos conceptos." },
+  { q:"A implantação nos ruminantes é invasiva e precoce, semelhante à que ocorre em primatas.", c:false,
+    e:"Nos ruminantes a implantação é superficial (não invasiva) e tardia." },
+  { q:"A gonadotrofina coriônica equina (eCG) é produzida pelos cálices endometriais, de origem trofoblástica.", c:true,
+    e:"Células da cinta coriônica invadem o endométrio e formam os cálices endometriais." },
+  { q:"O útero da porca é do tipo simples, sem cornos uterinos desenvolvidos.", c:false,
+    e:"A porca possui útero bicorno, com cornos longos e tortuosos." },
+  { q:"A placenta dos ruminantes é cotiledonária, formada por placentomas (carúncula materna + cotilédone fetal).", c:true,
+    e:"O placentoma é a unidade de trocas materno-fetais nos ruminantes." },
+  { q:"A placenta da égua e da porca é classificada como zonária.", c:false,
+    e:"Égua e porca têm placenta difusa." },
+  { q:"Em cadelas e gatas, a placenta é zonária e endoteliocorial.", c:true,
+    e:"Carnívoros apresentam placenta zonária e endoteliocorial." },
+  { q:"A placenta epiteliocorial, presente na égua e na porca, permite passagem eficiente de imunoglobulinas ao feto.", c:false,
+    e:"As camadas íntegras impedem a passagem; o neonato depende do colostro." },
+  { q:"O âmnio é o anexo embrionário que envolve diretamente o feto e contém o líquido amniótico.", c:true,
+    e:"O líquido amniótico protege o feto e lubrifica o canal do parto." },
+  { q:"A gestação da égua tem duração média de 283 dias, semelhante à da vaca.", c:false,
+    e:"A égua gesta em média cerca de 340 dias; ~283 dias é a média da vaca." },
+  { q:"Na vaca, a progesterona é produzida exclusivamente pela placenta durante toda a gestação, sendo o corpo lúteo dispensável.", c:false,
+    e:"O corpo lúteo é a principal fonte de progesterona durante a maior parte da gestação bovina." },
+  { q:"Em ruminantes, o cortisol fetal desencadeia o parto ao estimular a conversão placentária de progesterona em estrógeno.", c:true,
+    e:"O cortisol induz enzimas placentárias (ex.: 17α-hidroxilase), reduzindo P4 e elevando E2." },
+  { q:"A ocitocina é liberada no parto pelo reflexo de Ferguson, desencadeado pela distensão da cérvix e da vagina.", c:true,
+    e:"O estímulo neural da distensão leva à liberação de ocitocina pela neuro-hipófise." },
+  { q:"A primeira fase do parto corresponde à expulsão do feto.", c:false,
+    e:"A primeira fase é a de dilatação da cérvix; a expulsão é a segunda." },
+  { q:"Na égua, a fase de expulsão do potro é longa, durando geralmente de 2 a 4 horas.", c:false,
+    e:"Na égua a expulsão é rápida, em geral 20 a 30 minutos." },
+  { q:"Na lactação, a prolactina é responsável pela ejeção do leite, enquanto a ocitocina atua na síntese do leite.", c:false,
+    e:"É o inverso: prolactina na síntese (galactopoese) e ocitocina na ejeção." },
+  { q:"O colostro, rico em imunoglobulinas, é essencial para a imunidade passiva de neonatos de espécies com placenta epiteliocorial.", c:true,
+    e:"Potros, bezerros, leitões e cordeiros nascem praticamente sem imunoglobulinas." }
+];
+
+let ordem = [], idx = 0, respostas = [], selecionada = null, restante = TEMPO, intervalo = null, nomeAluno = '';
+const $ = id => document.getElementById(id);
+const fmt = n => n.toFixed(2).replace('.', ',');
+
+function chaveBloqueio(nome){ return 'quizGestacao_' + nome.toLowerCase().replace(/\s+/g,' ').trim(); }
+function lerLS(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function gravarLS(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+$('btn-iniciar').addEventListener('click', () => {
+  const nome = $('nome').value.trim().replace(/\s+/g,' ');
+  if (nome.split(' ').length < 2) { $('erro-nome').textContent = 'Digite seu nome completo (nome e sobrenome).'; return; }
+  if (lerLS(chaveBloqueio(nome))) { $('erro-nome').textContent = 'Este quiz já foi realizado com este nome neste dispositivo.'; return; }
+  nomeAluno = nome;
+  ordem = perguntas.map((_, i) => i).sort(() => Math.random() - 0.5);
+  $('tela-inicio').classList.add('hidden');
+  $('tela-quiz').classList.remove('hidden');
+  mostrar();
+});
+
+document.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+  b.classList.add('sel');
+  selecionada = b.dataset.v === 'true';
+  $('btn-avancar').disabled = false;
+}));
+
+$('btn-avancar').addEventListener('click', avancar);
+
+function mostrar(){
+  const p = perguntas[ordem[idx]];
+  selecionada = null;
+  document.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+  $('btn-avancar').disabled = true;
+  $('btn-avancar').textContent = idx === perguntas.length - 1 ? 'Concluir' : 'Avançar';
+  $('contador').textContent = `Questão ${idx + 1} de ${perguntas.length}`;
+  $('barra-prog').style.width = (idx / perguntas.length * 100) + '%';
+  $('pergunta').textContent = p.q;
+  restante = TEMPO; atualizarTempo();
+  clearInterval(intervalo);
+  intervalo = setInterval(() => { restante--; atualizarTempo(); if (restante <= 0) avancar(); }, 1000);
+}
+
+function atualizarTempo(){
+  $('timer').textContent = restante + 's';
+  $('timer').classList.toggle('low', restante <= 10);
+  $('barra-tempo').style.width = (restante / TEMPO * 100) + '%';
+}
+
+function avancar(){
+  clearInterval(intervalo);
+  respostas[idx] = selecionada;
+  idx++;
+  if (idx < perguntas.length) mostrar(); else finalizar();
+}
+
+function finalizar(){
+  let acertos = 0;
+  const rev = ordem.map((pi, i) => {
+    const p = perguntas[pi], r = respostas[i], ok = r === p.c;
+    if (ok) acertos++;
+    const txt = v => v === null || v === undefined ? 'Sem resposta' : (v ? 'Verdadeiro' : 'Falso');
+    return `<div class="item ${ok ? 'ok' : 'bad'}"><b>${i + 1}.</b> ${p.q}
+      <div class="meta">Sua resposta: <b>${txt(r)}</b> · Gabarito: <b>${txt(p.c)}</b></div>
+      <div class="exp">${p.e}</div></div>`;
+  }).join('');
+  const erros = perguntas.length - acertos;
+  const nota = acertos * (VALOR_TOTAL / perguntas.length);
+  gravarLS(chaveBloqueio(nomeAluno), '1');
+
+  $('tela-quiz').classList.add('hidden');
+  $('tela-final').classList.remove('hidden');
+  $('final-nome').textContent = nomeAluno;
+  $('final-nota').innerHTML = `${fmt(nota)} <small>/ 4,0</small>`;
+  $('final-acertos').textContent = acertos;
+  $('final-erros').textContent = erros;
+  $('revisao').innerHTML = rev;
+  window.scrollTo(0, 0);
+
+  const agora = new Date();
+  const payload = {
+    aba: ABA_SHEETS,
+    nome: nomeAluno, acertos, erros,
+    nota: fmt(nota),
+    data: agora.toLocaleDateString('pt-BR'),
+    hora: agora.toLocaleTimeString('pt-BR')
+  };
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(() => { $('status-envio').textContent = 'Resultado enviado ao professor.'; })
+    .catch(() => { $('status-envio').textContent = 'Não foi possível enviar o resultado. Mostre esta tela ao professor.'; });
+}
+
+window.addEventListener('beforeunload', e => {
+  if (!$('tela-quiz').classList.contains('hidden')) { e.preventDefault(); e.returnValue = ''; }
+});
+</script>
+</body>
+</html>
